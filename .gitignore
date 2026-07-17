@@ -1,0 +1,28 @@
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# Build
+**/target/
+**/dist/
+**/node_modules/
+*.class
+*.jar
+*.war
+*.log
+
+# Env / local
+.env
+.env.*
+!.env.example
+*.local
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Temp verify
+sql/_utf8_check.txt

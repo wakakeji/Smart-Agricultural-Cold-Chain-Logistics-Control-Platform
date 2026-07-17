@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智慧农业冷链物流管控平台 - UI原型设计(V3.0)</title>
+<style>
+:root { --primary:#2563eb; --primary-dark:#1d4ed8; --success:#16a34a; --warn:#d97706; --danger:#dc2626; --bg:#f3f4f6; --sidebar:#1f2937; --card:#fff; --text:#111827; --muted:#6b7280; --border:#e5e7eb; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); }
+.app { display:flex; min-height:100vh; }
+
+/* 侧边栏 */
+.sidebar { width:260px; background:var(--sidebar); color:#fff; flex-shrink:0; overflow-y:auto; }
+.sidebar-header { padding:20px; border-bottom:1px solid #374151; }
+.sidebar-header h1 { font-size:16px; margin-bottom:4px; }
+.sidebar-header p { font-size:12px; color:#9ca3af; }
+.menu { list-style:none; padding:8px 0; }
+.menu li { padding:10px 20px; cursor:pointer; display:flex; align-items:center; gap:10px; font-size:14px; transition:.2s; }
+.menu li:hover, .menu li.active { background:#374151; }
+.menu li .icon { width:20px; text-align:center; }
+.menu-group { padding:8px 20px; font-size:11px; color:#9ca3af; text-transform:uppercase; letter-spacing:1px; margin-top:8px; }
+
+/* 主内容区 */
+.main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+.topbar { height:56px; background:var(--card); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 24px; }
+.topbar-left { display:flex; align-items:center; gap:16px; }
+.breadcrumb { font-size:14px; color:var(--muted); }
+.topbar-right { display:flex; align-items:center; gap:16px; }
+.avatar { width:32px; height:32px; border-radius:50%; background:var(--primary); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; }
+
+/* 内容滚动区 */
+.content { flex:1; overflow-y:auto; padding:24px; }
+.page { display:none; }
+.page.active { display:block; }
+
+/* 卡片 */
+.card { background:var(--card); border-radius:8px; padding:20px; margin-bottom:20px; box-shadow:0 1px 2px rgba(0,0,0,.05); }
+.card h3 { font-size:16px; margin-bottom:16px; color:var(--text); }
+
+/* 按钮 */
+.btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:6px; border:none; font-size:14px; cursor:pointer; transition:.2s; }
+.btn-primary { background:var(--primary); color:#fff; }
+.btn-primary:hover { background:var(--primary-dark); }
+.btn-success { background:var(--success); color:#fff; }
+.btn-warn { background:var(--warn); color:#fff; }
+.btn-danger { background:var(--danger); color:#fff; }
+.btn-default { background:#fff; border:1px solid var(--border); color:var(--text); }
+.btn-sm { padding:6px 12px; font-size:13px; }
+
+/* 搜索栏 */
+.search-bar { display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+.input { padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:14px; min-width:180px; }
+.select { padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:14px; background:#fff; }
+
+/* 表格 */
+.table { width:100%; border-collapse:collapse; font-size:14px; }
+.table th, .table td { border:1px solid var(--border); padding:12px; text-align:left; }
+.table th { background:#f9fafb; font-weight:600; }
+.table tr:hover { background:#f9fafb; }
+
+/* 状态标签 */
+.tag { display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:600; }
+.tag-green { background:#dcfce7; color:#166534; }
+.tag-yellow { background:#fef9c3; color:#854d0e; }
+.tag-red { background:#fee2e2; color:#991b1b; }
+.tag-gray { background:#f3f4f6; color:#4b5563; }
+.tag-blue { background:#dbeafe; color:#1e40af; }
+
+/* 统计卡片 */
+.stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-bottom:20px; }
+.stat-card { background:var(--card); border-radius:8px; padding:20px; box-shadow:0 1px 2px rgba(0,0,0,.05); }
+.stat-label { font-size:13px; color:var(--muted); margin-bottom:8px; }
+.stat-value { font-size:28px; font-weight:700; color:var(--text); }
+.stat-trend { font-size:12px; margin-top:4px; }
+.trend-up { color:var(--success); }
+.trend-down { color:var(--danger); }
+
+/* 地图占位 */
+.map-placeholder { background:#e5e7eb; border-radius:8px; height:400px; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:18px; position:relative; overflow:hidden; }
+.map-pin { position:absolute; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; color:#fff; cursor:pointer; }
+.pin-cold { background:#3b82f6; top:30%; left:40%; }
+.pin-truck { background:#16a34a; top:50%; left:60%; }
+.pin-alert { background:#dc2626; top:40%; left:50%; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.2);} }
+
+/* 大屏样式 */
+.screen-full { background:#0f172a; color:#fff; border-radius:8px; padding:24px; min-height:500px; }
+.screen-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+.screen-title { font-size:20px; font-weight:700; }
+.screen-time { font-size:14px; color:#94a3b8; }
+
+/* 时间轴 */
+.timeline { position:relative; padding-left:24px; }
+.timeline::before { content:''; position:absolute; left:8px; top:0; bottom:0; width:2px; background:var(--border); }
+.timeline-item { position:relative; padding-bottom:20px; }
+.timeline-item::before { content:''; position:absolute; left:-20px; top:4px; width:12px; height:12px; border-radius:50%; background:var(--primary); border:2px solid var(--card); }
+.timeline-item.alert::before { background:var(--danger); }
+.timeline-item.success::before { background:var(--success); }
+
+/* H5页面 */
+.h5-frame { width:375px; margin:0 auto; background:#fff; border-radius:20px; box-shadow:0 4px 20px rgba(0,0,0,.1); overflow:hidden; min-height:700px; }
+.h5-header { background:var(--primary); color:#fff; padding:16px; text-align:center; font-size:16px; font-weight:600; }
+.h5-body { padding:16px; }
+.h5-card { background:#f9fafb; border-radius:12px; padding:16px; margin-bottom:12px; }
+.qrcode-box { width:200px; height:200px; background:#fff; border:1px solid var(--border); margin:20px auto; display:flex; align-items:center; justify-content:center; color:var(--muted); }
+
+/* 弹窗 */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:100; }
+.modal-overlay.active { display:flex; }
+.modal { background:#fff; border-radius:12px; width:600px; max-width:90%; max-height:80vh; overflow:hidden; }
+.modal-header { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+.modal-body { padding:20px; overflow-y:auto; max-height:60vh; }
+.modal-footer { padding:16px 20px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:12px; }
+
+/* 图表占位 */
+.chart-placeholder { background:#f9fafb; border-radius:8px; height:250px; display:flex; align-items:center; justify-content:center; color:var(--muted); }
+
+/* 按钮组 */
+.btn-group { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+<!-- 侧边栏 -->
+<aside class="sidebar">
+<div class="sidebar-header">
+<h1>🌾 智慧冷链管控平台</h1>
+<p>平台管理员 | 广西麦秸</p>
+</div>
+<div class="menu-group">数字孪生</div>
+<ul class="menu">
+<li class="active" onclick="showPage('dt-map')"><span class="icon">🗺️</span> 全网设施地图监控</li>
+<li onclick="showPage('dt-quality')"><span class="icon">📊</span> 品质变化监控</li>
+<li onclick="showPage('dt-screen')"><span class="icon">🖥️</span> 数字孪生指挥大屏</li>
+<li onclick="showPage('dt-warning')"><span class="icon">⚠️</span> AI预警响应联动</li>
+</ul>
+<div class="menu-group">环境监测</div>
+<ul class="menu">
+<li onclick="showPage('em-realtime')"><span class="icon">🌡️</span> 多参数实时采集</li>
+<li onclick="showPage('em-quality')"><span class="icon">📡</span> 数据质量保障</li>
+</ul>
+<div class="menu-group">质量追溯</div>
+<ul class="menu">
+<li onclick="showPage('qt-code')"><span class="icon">🏷️</span> 数字身份赋码</li>
+<li onclick="showPage('qt-trace')"><span class="icon">🔗</span> 全链条追溯</li>
+<li onclick="showPage('qt-chain')"><span class="icon">⛓️</span> 区块链数据上链</li>
+<li onclick="showPage('qt-h5')"><span class="icon">📱</span> 消费者H5溯源</li>
+</ul>
+<div class="menu-group">智能预测</div>
+<ul class="menu">
+<li onclick="showPage('ai-predict')"><span class="icon">🤖</span> 品质衰变预测</li>
+<li onclick="showPage('ai-decision')"><span class="icon">💡</span> 决策建议面板</li>
+</ul>
+<div class="menu-group">路径优化</div>
+<ul class="menu">
+<li onclick="showPage('rp-plan')"><span class="icon">🛣️</span> 品质约束路径规划</li>
+<li onclick="showPage('rp-reroute')"><span class="icon">🔄</span> 实时路径重规划</li>
+</ul>
+<div class="menu-group">损耗与碳排放</div>
+<ul class="menu">
+<li onclick="showPage('lr-monitor')"><span class="icon">📉</span> 损耗率实时监测</li>
+<li onclick="showPage('ce-monitor')"><span class="icon">🌱</span> 碳排放实时监测</li>
+</ul>
+<div class="menu-group">系统管理</div>
+<ul class="menu">
+<li onclick="showPage('si-monitor')"><span class="icon">🔧</span> 微服务监控</li>
+<li onclick="showPage('api-manage')"><span class="icon">🔌</span> API网关管理</li>
+</ul>
+</aside>
+
+<!-- 主内容 -->
+<div class="main">
+<div class="topbar">
+<div class="topbar-left">
+<span class="breadcrumb">📍 数字孪生 / 全网设施地图监控</span>
+</div>
+<div class="topbar-right">
+<span style="font-size:13px;color:var(--muted);">🔔 3条新预警</span>
+<div class="avatar">管</div>
+</div>
+</div>
+
+<div class="content">
+
+<!-- DT-001 全网设施地图监控 -->
+<div class="page active" id="dt-map">
+<div class="card">
+<div class="btn-group">
+<button class="btn btn-primary">🔄 手动刷新</button>
+<button class="btn btn-default">🏠 仅冷库</button>
+<button class="btn btn-default">🚛 仅车辆</button>
+<button class="btn btn-default">📋 全部</button>
+<button class="btn btn-default">🔍 搜索定位</button>
+<button class="btn btn-default">⏪ 历史回放</button>
+</div>
+<div class="map-placeholder">
+<span>🗺️ 百度地图底图 - 实时设施监控</span>
+<div class="map-pin pin-cold" title="南宁冷库A座 | 2.5℃">❄️</div>
+<div class="map-pin pin-truck" title="桂A12345 | 3.1℃">🚛</div>
+<div class="map-pin pin-alert" title="桂B67890 | 温度异常 12℃">⚠️</div>
+</div>
+</div>
+<div class="stats">
+<div class="stat-card"><div class="stat-label">在途车辆总数</div><div class="stat-value">42</div><div class="stat-trend trend-up">↑ 2辆较昨日</div></div>
+<div class="stat-card"><div class="stat-label">冷库总数</div><div class="stat-value">18</div><div class="stat-trend">→ 持平</div></div>
+<div class="stat-card"><div class="stat-label">今日报警数量</div><div class="stat-value" style="color:var(--danger)">5</div><div class="stat-trend trend-down">↑ 3条待处理</div></div>
+<div class="stat-card"><div class="stat-label">在线率</div><div class="stat-value">98.2%</div><div class="stat-trend trend-up">↑ 0.5%</div></div>
+</div>
+</div>
+
+<!-- DT-002 品质变化监控 -->
+<div class="page" id="dt-quality">
+<div class="card">
+<h3>🍎 批次 #20260315001 - 荔枝 品质监控</h3>
+<div class="btn-group">
+<button class="btn btn-primary">📈 查看完整曲线</button>
+<button class="btn btn-default">📄 导出PDF品质报告</button>
+<button class="btn btn-default">⚙️ 自定义报警阈值</button>
+</div>
+<div class="chart-placeholder">📊 ECharts 品质分数曲线图（0-100分）<br>实线=历史数据 | 虚线=24h预测 | 红线=60分警戒线</div>
+</div>
+<div class="card">
+<h3>📋 在途货物品质列表</h3>
+<table class="table">
+<tr><th>批次号</th><th>品类</th><th>当前品质分</th><th>24h预测</th><th>状态</th><th>操作</th></tr>
+<tr><td>#20260315001</td><td>荔枝</td><td><strong>78</strong></td><td>65</td><td><span class="tag tag-yellow">⚠️ 注意</span></td><td><button class="btn btn-sm btn-primary">查看</button></td></tr>
+<tr><td>#20260315002</td><td>龙眼</td><td><strong>92</strong></td><td>88</td><td><span class="tag tag-green">✅ 优良</span></td><td><button class="btn btn-sm btn-primary">查看</button></td></tr>
+<tr><td>#20260315003</td><td>百香果</td><td><strong>45</strong></td><td>32</td><td><span class="tag tag-red">🔴 危急</span></td><td><button class="btn btn-sm btn-danger">紧急处理</button></td></tr>
+</table>
+</div>
+</div>
+
+<!-- VM-001 数字孪生指挥大屏 -->
+<div class="page" id="dt-screen">
+<div class="screen-full">
+<div class="screen-header">
+<div class="screen-title">🖥️ 智慧农业冷链物流数字孪生指挥中心</div>
+<div class="screen-time">⏰ 2026-03-15 14:32:18 | 数据延迟: 86ms</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 2fr 1fr;gap:20px;">
+<div>
+<div style="background:#1e293b;border-radius:8px;padding:16px;margin-bottom:16px;">
+<div style="font-size:12px;color:#94a3b8;margin-bottom:8px;">图层控制</div>
+<div style="font-size:13px;margin-bottom:8px;"><input type="checkbox" checked> 🏠 冷库分布</div>
+<div style="font-size:13px;margin-bottom:8px;"><input type="checkbox" checked> 🚛 在途车辆</div>
+<div style="font-size:13px;margin-bottom:8px;"><input type="checkbox"> 🌡️ 温度热力图</div>
+<div style="font-size:13px;"><input type="checkbox" checked> ⚠️ 预警点位</div>
+</div>
+</div>
+<div style="background:#1e293b;border-radius:8px;padding:16px;display:flex;align-items:center;justify-content:center;min-height:300px;">
+<div style="text-align:center;">
+<div style="font-size:48px;margin-bottom:16px;">🌐</div>
+<div>Three.js 三维地图渲染区</div>
+<div style="font-size:12px;color:#94a3b8;margin-top:8px;">实时同步全部设施数据 | 5秒自动刷新</div>
+</div>
+</div>
+<div>
+<div style="background:#1e293b;border-radius:8px;padding:16px;margin-bottom:16px;">
+<div style="font-size:12px;color:#94a3b8;margin-bottom:8px;">实时预警 (5)</div>
+<div style="font-size:13px;padding:8px;background:#7f1d1d;border-radius:6px;margin-bottom:8px;">🔴 桂B67890 温度异常 12℃</div>
+<div style="font-size:13px;padding:8px;background:#713f12;border-radius:6px;margin-bottom:8px;">🟡 南宁冷库B座 湿度偏高</div>
+<div style="font-size:13px;padding:8px;background:#1e3a5f;border-radius:6px;">🔵 系统定时巡检完成</div>
+</div>
+<div style="background:#1e293b;border-radius:8px;padding:16px;">
+<div style="font-size:12px;color:#94a3b8;margin-bottom:8px;">AI决策建议</div>
+<div style="font-size:13px;padding:8px;background:#14532d;border-radius:6px;">✅ 建议优先配送批次#001</div>
+</div>
+</div>
+</div>
+<div style="margin-top:20px;text-align:center;">
+<button class="btn btn-primary">📸 一键截图</button>
+<button class="btn btn-default" style="margin-left:12px;">⛶ 全屏展示</button>
+</div>
+</div>
+</div>
+
+<!-- VM-003 AI预警响应联动 -->
+<div class="page" id="dt-warning">
+<div class="card">
+<div class="btn-group">
+<button class="btn btn-primary">⏳ 待处理 (5)</button>
+<button class="btn btn-default">📜 历史记录</button>
+<button class="btn btn-default">📊 预警统计</button>
+</div>
+</div>
+<div class="card">
+<h3>⚠️ 待处理预警列表</h3>
+<table class="table">
+<tr><th>级别</th><th>类型</th><th>设备/批次</th><th>内容</th><th>时间</th><th>操作</th></tr>
+<tr><td><span class="tag tag-red">紧急</span></td><td>温度超标</td><td>桂B67890</td><td>车厢温度达到12℃，超过阈值8℃</td><td>14:30:22</td><td><button class="btn btn-sm btn-primary">处理</button> <button class="btn btn-sm btn-default">忽略</button></td></tr>
+<tr><td><span class="tag tag-yellow">重要</span></td><td>设备离线</td><td>南宁冷库A座-传感器03</td><td>超过5分钟未上报数据</td><td>14:25:10</td><td><button class="btn btn-sm btn-primary">处理</button> <button class="btn btn-sm btn-default">忽略</button></td></tr>
+<tr><td><span class="tag tag-blue">一般</span></td><td>路线偏离</td><td>桂A12345</td><td>偏离规划路线500米</td><td>14:20:05</td><td><button class="btn btn-sm btn-primary">处理</button> <button class="btn btn-sm btn-default">忽略</button></td></tr>
+</table>
+</div>
+<div class="card">
+<h3>📊 预警类型占比 & 处理及时率</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+<div class="chart-placeholder">🥧 预警类型饼图（温度/离线/偏离/其他）</div>
+<div class="chart-placeholder">📈 处理及时率趋势图（本周）</div>
+</div>
+</div>
+</div>
+
+<!-- EM-001 多参数实时采集 -->
+<div class="page" id="em-realtime">
+<div class="card">
+<div class="search-bar">
+<input class="input" placeholder="🔍 搜索设备名称/编号">
+<select class="select"><option>全部区域</option><option>南宁仓</option><option>柳州仓</option></select>
+<select class="select"><option>全部类型</option><option>温度传感器</option><option>湿度传感器</option><option>GPS</option></select>
+<button class="btn btn-primary">🔄 刷新</button>
+<button class="btn btn-default">📥 Excel导出</button>
+</div>
+</div>
+<div class="stats">
+<div class="stat-card"><div class="stat-label">🌡️ 平均温度</div><div class="stat-value">3.2℃</div><div class="stat-trend">目标: 0-5℃</div></div>
+<div class="stat-card"><div class="stat-label">💧 平均湿度</div><div class="stat-value">78.5%</div><div class="stat-trend">目标: 70-85%</div></div>
+<div class="stat-card"><div class="stat-label">📡 在线设备</div><div class="stat-value">156/160</div><div class="stat-trend trend-down">4台离线</div></div>
+<div class="stat-card"><div class="stat-label">⚠️ 今日报警</div><div class="stat-value" style="color:var(--danger)">3</div><div class="stat-trend">需关注</div></div>
+</div>
+<div class="card">
+<h3>📋 传感器实时数据列表</h3>
+<table class="table">
+<tr><th>设备编号</th><th>名称</th><th>位置</th><th>温度</th><th>湿度</th><th>状态</th><th>更新时间</th></tr>
+<tr><td>SEN-001</td><td>冷库A座-温湿度01</td><td>南宁冷库A座</td><td>2.50℃</td><td>82.30%</td><td><span class="tag tag-green">🟢 正常</span></td><td>14:32:01</td></tr>
+<tr><td>SEN-002</td><td>桂A12345-车载温湿度</td><td>G72泉南高速</td><td>3.10℃</td><td>75.60%</td><td><span class="tag tag-green">🟢 正常</span></td><td>14:31:58</td></tr>
+<tr><td>SEN-003</td><td>桂B67890-车载温湿度</td><td>G80广昆高速</td><td><strong style="color:var(--danger)">12.00℃</strong></td><td>68.20%</td><td><span class="tag tag-red">🔴 报警</span></td><td>14:30:22</td></tr>
+</table>
+</div>
+</div>
+
+<!-- EM-005 数据质量保障 -->
+<div class="page" id="em-quality">
+<div class="card">
+<h3>📡 网络传输质量监控</h3>
+<div class="stats">
+<div class="stat-card"><div class="stat-label">平均延迟</div><div class="stat-value">68ms</div><div class="stat-trend trend-up">✅ 低于100ms</div></div>
+<div class="stat-card"><div class="stat-label">数据丢失率</div><div class="stat-value">0.002%</div><div class="stat-trend trend-up">✅ 低于0.01%</div></div>
+<div class="stat-card"><div class="stat-label">今日传输总量</div><div class="stat-value">2.4M</div><div class="stat-trend">条数据</div></div>
+<div class="stat-card"><div class="stat-label">断网缓存</div><div class="stat-value">0</div><div class="stat-trend">条待补传</div></div>
+</div>
+</div>
+<div class="card">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+<div>
+<h3>📈 1小时延迟趋势</h3>
+<div class="chart-placeholder">折线图：延迟(ms)随时间变化</div>
+</div>
+<div>
+<h3>🥧 数据完整性分布</h3>
+<div class="chart-placeholder">饼图：完整/丢失/补传 占比</div>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="btn-group">
+<button class="btn btn-default">📜 查看传输日志</button>
+<button class="btn btn-default">🔄 手动重传丢失数据</button>
+</div>
+</div>
+</div>
+
+<!-- QT-002 数字身份赋码 -->
+<div class="page" id="qt-code">
+<div class="card">
+<div class="btn-group">
+<button class="btn btn-primary">➕ 新增赋码</button>
+<button class="btn btn-default">📥 批量导入Excel</button>
+<button class="btn btn-default">🖨️ 打印标签</button>
+</div>
+<div class="search-bar">
+<input class="input" placeholder="🔍 搜索批次号/产品名称">
+<select class="select"><option>全部状态</option><option>有效</option><option>已作废</option></select>
+</div>
+</div>
+<div class="card">
+<h3>🏷️ 批次赋码列表</h3>
+<table class="table">
+<tr><th>批次号</th><th>产品名称</th><th>产地</th><th>重量</th><th>生产日期</th><th>二维码</th><th>状态</th><th>操作</th></tr>
+<tr><td>#20260315001</td><td>桂味荔枝</td><td>广西北流</td><td>500kg</td><td>2026-03-10</td><td><div style="width:40px;height:40px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:10px;">QR</div></td><td><span class="tag tag-green">✅ 有效</span></td><td><button class="btn btn-sm btn-primary">下载PNG</button> <button class="btn btn-sm btn-danger">作废</button></td></tr>
+<tr><td>#20260315002</td><td>石硖龙眼</td><td>广西平南</td><td>300kg</td><td>2026-03-12</td><td><div style="width:40px;height:40px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:10px;">QR</div></td><td><span class="tag tag-green">✅ 有效</span></td><td><button class="btn btn-sm btn-primary">下载PNG</button> <button class="btn btn-sm btn-danger">作废</button></td></tr>
+</table>
+</div>
+</div>
+
+<!-- QT-003 全链条追溯 -->
+<div class="page" id="qt-trace">
+<div class="card">
+<div class="search-bar">
+<input class="input" placeholder="🔍 输入批次号追溯">
+<button class="btn btn-primary">🔍 追溯查询</button>
+<button class="btn btn-default">📄 导出PDF追溯报告</button>
+<button class="btn btn-default">🔗 分享链接</button>
+</div>
+</div>
+<div class="card">
+<h3>🔗 批次 #20260315001 - 全链条追溯时间轴</h3>
+<div class="timeline">
+<div class="timeline-item success">
+<div style="font-weight:600;">🌱 生产赋码</div>
+<div style="font-size:13px;color:var(--muted);margin-top:4px;">2026-03-10 08:30 | 广西北流 | 农户：张大山</div>
+<div style="font-size:13px;margin-top:4px;">桂味荔枝采摘，初始品质分：95</div>
+</div>
+<div class="timeline-item success">
+<div style="font-weight:600;">🏭 入库仓储</div>
+<div style="font-size:13px;color:var(--muted);margin-top:4px;">2026-03-10 10:15 | 南宁冷库A座 | 仓管：李晓明</div>
+<div style="font-size:13px;margin-top:4px;">温度：2.5℃ | 湿度：82% | 品质分：94</div>
+</div>
+<div class="timeline-item alert">
+<div style="font-weight:600;color:var(--danger);">🚛 运输途中 - 温度异常</div>
+<div style="font-size:13px;color:var(--muted);margin-top:4px;">2026-03-15 14:30 | G80广昆高速 | 司机：王强</div>
+<div style="font-size:13px;margin-top:4px;color:var(--danger);">⚠️ 温度达到12℃（阈值8℃）| 品质分：45</div>
+</div>
+<div class="timeline-item">
+<div style="font-weight:600;color:var(--muted);">🏪 零售终端（预计）</div>
+<div style="font-size:13px;color:var(--muted);margin-top:4px;">2026-03-15 18:00 | 南宁某超市</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- QT-004 区块链数据上链 -->
+<div class="page" id="qt-chain">
+<div class="card">
+<div class="btn-group">
+<button class="btn btn-primary">⛓️ 手动上链</button>
+<button class="btn btn-default">📦 批量上链</button>
+<button class="btn btn-default">⚙️ 自动上链规则</button>
+</div>
+<div class="search-bar">
+<select class="select"><option>全部</option><option>待上链</option><option>已上链</option></select>
+<input class="input" placeholder="🔍 搜索交易哈希">
+</div>
+</div>
+<div class="card">
+<h3>⛓️ 区块链存证记录</h3>
+<table class="table">
+<tr><th>状态</th><th>数据类型</th><th>交易哈希</th><th>上链时间</th><th>操作</th></tr>
+<tr><td><span class="tag tag-green">✅ 已上链</span></td><td>温度异常记录</td><td style="font-family:monospace;font-size:12px;">0x7a3f...9e2d</td><td>2026-03-15 14:30:25</td><td><button class="btn btn-sm btn-primary">验证</button></td></tr>
+<tr><td><span class="tag tag-green">✅ 已上链</span></td><td>批次赋码信息</td><td style="font-family:monospace;font-size:12px;">0x8b2c...1f4a</td><td>2026-03-10 08:30:12</td><td><button class="btn btn-sm btn-primary">验证</button></td></tr>
+<tr><td><span class="tag tag-yellow">⏳ 待上链</span></td><td>小时汇总数据</td><td>-</td><td>-</td><td><button class="btn btn-sm btn-primary">立即上链</button></td></tr>
+</table>
+</div>
+</div>
+
+<!-- QT-006 消费者H5溯源 -->
+<div class="page" id="qt-h5">
+<div style="display:flex;gap:40px;">
+<div style="flex:1;">
+<div class="card">
+<h3>📱 消费者H5溯源页面预览</h3>
+<div class="warn-box" style="background:#dbeafe;border-left-color:#2563eb;">
+💡 此页面为手机端免登录页面，微信扫码即可访问
+</div>
+</div>
+</div>
+<div class="h5-frame">
+<div class="h5-header">🌾 智慧冷链溯源</div>
+<div class="h5-body">
+<div style="text-align:center;margin-bottom:16px;">
+<div class="qrcode-box">📷 扫码图标</div>
+<div style="font-size:12px;color:var(--muted);">批次：#20260315001</div>
+</div>
+<div class="h5-card">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+<div style="width:48px;height:48px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;">✅</div>
+<div>
+<div style="font-weight:600;">正品认证</div>
+<div style="font-size:12px;color:var(--muted);">区块链校验通过</div>
+</div>
+</div>
+</div>
+<div class="h5-card">
+<div style="font-weight:600;margin-bottom:8px;">🍎 桂味荔枝</div>
+<div style="font-size:13px;color:var(--muted);">产地：广西北流 | 重量：500kg</div>
+<div style="font-size:13px;color:var(--muted);">生产日期：2026-03-10</div>
+</div>
+<div class="h5-card">
+<div style="font-weight:600;margin-bottom:8px;">📊 品质评分</div>
+<div style="font-size:32px;font-weight:700;color:var(--warn);text-align:center;">45<span style="font-size:14px;">/100</span></div>
+<div style="font-size:12px;color:var(--danger);text-align:center;">⚠️ 运输途中温度异常，品质受损</div>
+</div>
+<div class="h5-card">
+<div style="font-weight:600;margin-bottom:8px;">🌡️ 温度曲线</div>
+<div style="height:100px;background:#f3f4f6;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);">📈 温度变化曲线</div>
+</div>
+<div class="h5-card">
+<div style="font-weight:600;margin-bottom:8px;">🔗 追溯时间轴</div>
+<div style="font-size:13px;">🌱 生产 → 🏭 入库 → 🚛 运输 → 🏪 零售</div>
+</div>
+<div style="display:flex;gap:12px;margin-top:16px;">
+<button class="btn btn-primary" style="flex:1;">📤 分享海报</button>
+<button class="btn btn-default" style="flex:1;">📝 投诉反馈</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- AI-001 品质衰变预测 -->
+<div class="page" id="ai-predict">
+<div class="card">
+<h3>🤖 AI品质衰变预测模型</h3>
+<div style="display:grid;grid-template-columns:1fr 2fr;gap:20px;">
+<div>
+<div style="background:#f9fafb;border-radius:8px;padding:16px;">
+<div style="font-weight:600;margin-bottom:12px;">📋 输入参数</div>
+<div style="margin-bottom:12px;"><label style="font-size:13px;color:var(--muted);display:block;margin-bottom:4px;">农产品品类</label><select class="select" style="width:100%;"><option>荔枝</option><option>龙眼</option><option>百香果</option></select></div>
+<div style="margin-bottom:12px;"><label style="font-size:13px;color:var(--muted);display:block;margin-bottom:4px;">当前温度(℃)</label><input class="input" value="3.5" style="width:100%;"></div>
+<div style="margin-bottom:12px;"><label style="font-size:13px;color:var(--muted);display:block;margin-bottom:4px;">当前湿度(%)</label><input class="input" value="80" style="width:100%;"></div>
+<div style="margin-bottom:12px;"><label style="font-size:13px;color:var(--muted);display:block;margin-bottom:4px;">已运输时长(小时)</label><input class="input" value="12" style="width:100%;"></div>
+<button class="btn btn-primary" style="width:100%;">🔮 开始预测</button>
+</div>
+</div>
+<div>
+<div style="background:#f9fafb;border-radius:8px;padding:16px;text-align:center;">
+<div style="font-size:14px;color:var(--muted);margin-bottom:8px;">当前品质评分</div>
+<div style="font-size:64px;font-weight:700;color:var(--primary);">72</div>
+<div style="font-size:14px;">/ 100分</div>
+<div style="margin-top:16px;padding:12px;background:#fff;border-radius:8px;">
+<div style="font-size:13px;color:var(--muted);">建议销售时效</div>
+<div style="font-size:20px;font-weight:600;color:var(--warn);">⏰ 48小时内</div>
+</div>
+</div>
+<div class="chart-placeholder" style="margin-top:16px;">📊 72小时品质衰变预测曲线<br>虚线=预测 | 红线=60分警戒线</div>
+</div>
+</div>
+<div class="btn-group" style="margin-top:16px;">
+<button class="btn btn-default">📄 导出预测报告</button>
+</div>
+</div>
+</div>
+
+<!-- AI-004 决策建议面板 -->
+<div class="page" id="ai-decision">
+<div class="card">
+<div class="btn-group">
+<button class="btn btn-primary">📋 全部建议</button>
+<button class="btn btn-default">🔴 紧急</button>
+<button class="btn btn-default">🟡 重要</button>
+<button class="btn btn-default">🔵 普通</button>
+<button class="btn btn-default">✅ 已采纳</button>
+</div>
+</div>
+<div class="card">
+<h3>💡 AI智能决策建议</h3>
+<div style="display:flex;flex-direction:column;gap:12px;">
+<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:16px;display:flex;justify-content:space-between;align-items:center;">
+<div>
+<div style="font-weight:600;color:#991b1b;margin-bottom:4px;">🔴 紧急：批次#20260315003品质急剧下降</div>
+<div style="font-size:13px;color:var(--muted);">预测24h后品质分将降至32分，建议立即就近销售或转运至更近冷库</div>
+</div>
+<div style="display:flex;gap:8px;">
+<button class="btn btn-sm btn-primary">采纳</button>
+<button class="btn btn-sm btn-default">忽略</button>
+<button class="btn btn-sm btn-default">查看数据源</button>
+</div>
+</div>
+<div style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:16px;display:flex;justify-content:space-between;align-items:center;">
+<div>
+<div style="font-weight:600;color:#854d0e;margin-bottom:4px;">🟡 重要：桂A12345路线优化建议</div>
+<div style="font-size:13px;color:var(--muted);">前方G72路段预计拥堵30分钟，建议切换G75路线，可节省18分钟</div>
+</div>
+<div style="display:flex;gap:8px;">
+<button class="btn btn-sm btn-primary">采纳</button>
+<button class="btn btn-sm btn-default">忽略</button>
+<button class="btn btn-sm btn-default">查看数据源</button>
+</div>
+</div>
+<div style="background:#dbeafe;border:1px solid #93c5fd;border-radius:8px;padding:16px;display:flex;justify-content:space-between;align-items:center;">
+<div>
+<div style="font-weight:600;color:#1e40af;margin-bottom:4px;">🔵 普通：南宁冷库A座能耗优化</div>
+<div style="font-size:13px;color:var(--muted);">夜间负荷降低，建议将制冷温度从2℃调整至2.5℃，预计日节电12%</div>
+</div>
+<div style="display:flex;gap:8px;">
+<button class="btn btn-sm btn-primary">采纳</button>
+<button class="btn btn-sm btn-default">忽略</button>
+<button class="btn btn-sm btn-default">查看数据源</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- RP-001 品质约束路径规划 -->
+<div class="page" id="rp-plan">
+<div class="card">
+<h3>🛣️ 品质约束路径规划</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+<div>
+<div style="background:#f9fafb;border-radius:8px;padding:16px;">
+<div style="font-weight:600;margin-bottom:12px;">📋 运输任务录入</div>
+<div style="margin-bottom:12px;"><label style="font-size:13px;color:var(--muted);display:block;margin-bottom:4px;">起点</label><input class="input" value="南宁冷库A座" style="width:100%;"></div>
+<div style="margin-bottom:12px;"><label style="font-size:13px;color:var(--muted);display:block;margin-bottom:4px;">终点</label><input class="input" value="广州江南批发市场" style="width:100%;"></div>
+<div style="margin-bottom:12px;"><label style="font-size:13px;color:var(--muted);display:block;margin-bottom:4px;">货物</label><select class="select" style="width:100%;"><option>荔枝 500kg</option><option>龙眼 300kg</option></select></div>
+<div style="margin-bottom:12px;"><label style="font-size:13px;color:var(--muted);display:block;margin-bottom:4px;">期望送达时间</label><input class="input" value="2026-03-16 08:00" style="width:100%;"></div>
+<button class="btn btn-primary" style="width:100%;">🧮 计算最优路线</button>
+</div>
+</div>
+<div>
+<div class="map-placeholder" style="height:300px;">🗺️ 百度地图 - 多条路线对比展示</div>
+<div style="margin-top:16px;">
+<table class="table" style="font-size:13px;">
+<tr><th>路线</th><th>时长</th><th>成本</th><th>到达品质</th><th>推荐</th></tr>
+<tr><td>路线A (G72)</td><td>8h30m</td><td>¥1,200</td><td>78分</td><td><span class="tag tag-green">⭐ 最优</span></td></tr>
+<tr><td>路线B (G80)</td><td>9h15m</td><td>¥1,050</td><td>72分</td><td>-</td></tr>
+<tr><td>路线C (国道)</td><td>11h00m</td><td>¥800</td><td>65分</td><td>-</td></tr>
+</table>
+<button class="btn btn-primary">✅ 采纳路线A并生成任务单</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- RP-007 实时路径重规划 -->
+<div class="page" id="rp-reroute">
+<div class="card">
+<div class="btn-group">
+<button class="btn btn-primary">🚛 在途任务 (8)</button>
+<button class="btn btn-default">📜 历史重规划记录</button>
+</div>
+</div>
+<div class="card">
+<h3>🔄 在途运输任务监控</h3>
+<table class="table">
+<tr><th>任务单号</th><th>车辆</th><th>货物</th><th>当前位置</th><th>预计到达</th><th>状态</th><th>操作</th></tr>
+<tr><td>TASK-20260315-001</td><td>桂A12345</td><td>荔枝 500kg</td><td>G72泉南高速 K1256</td><td>18:30</td><td><span class="tag tag-green">🟢 正常</span></td><td><button class="btn btn-sm btn-primary">详情</button></td></tr>
+<tr style="background:#fef2f2;"><td>TASK-20260315-002</td><td>桂B67890</td><td>龙眼 300kg</td><td>G80广昆高速 K892</td><td>19:00</td><td><span class="tag tag-red">🔴 异常</span></td><td><button class="btn btn-sm btn-danger">一键重规划</button> <button class="btn btn-sm btn-default">联系司机</button></td></tr>
+</table>
+</div>
+<div class="card" style="background:#fef2f2;border:1px solid #fecaca;">
+<h3>⚠️ 异常处理 - TASK-20260315-002</h3>
+<div style="margin-bottom:16px;">
+<div style="font-weight:600;color:#991b1b;">异常原因：前方G80路段交通事故，预计封路2小时</div>
+<div style="font-size:13px;color:var(--muted);margin-top:4px;">当前位置：G80广昆高速 K892 | 司机：王强 | 联系方式：138****5678</div>
+</div>
+<div class="map-placeholder" style="height:200px;">🗺️ 绕行方案地图展示</div>
+<div class="btn-group" style="margin-top:16px;">
+<button class="btn btn-danger">✅ 确认采纳新路线</button>
+<button class="btn btn-default">📞 联系司机确认</button>
+<button class="btn btn-default">🔄 重新计算</button>
+</div>
+</div>
+</div>
+
+<!-- LR-001 损耗率实时监测 -->
+<div class="page" id="lr-monitor">
+<div class="card">
+<h3>📉 损耗率实时监测仪表盘</h3>
+<div class="stats">
+<div class="stat-card"><div class="stat-label">📊 综合损耗率</div><div class="stat-value" style="color:var(--success)">6.8%</div><div class="stat-trend trend-up">✅ 低于目标8%</div></div>
+<div class="stat-card"><div class="stat-label">🏭 仓储损耗</div><div class="stat-value">2.1%</div><div class="stat-trend">→ 行业基准: 8%</div></div>
+<div class="stat-card"><div class="stat-label">🚛 运输损耗</div><div class="stat-value">3.5%</div><div class="stat-trend">→ 行业基准: 12%</div></div>
+<div class="stat-card"><div class="stat-label">🏪 销售损耗</div><div class="stat-value">1.2%</div><div class="stat-trend">→ 行业基准: 5%</div></div>
+</div>
+</div>
+<div class="card">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+<div>
+<h3>📊 损耗率对比</h3>
+<div class="chart-placeholder">柱状图：本系统 vs 行业基准 vs 目标值</div>
+</div>
+<div>
+<h3>📈 损耗趋势</h3>
+<div class="chart-placeholder">折线图：近30天损耗率变化趋势</div>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="btn-group">
+<button class="btn btn-default">📄 导出日报</button>
+<button class="btn btn-default">📄 导出月报</button>
+</div>
+</div>
+</div>
+
+<!-- CE-001 碳排放实时监测 -->
+<div class="page" id="ce-monitor">
+<div class="card">
+<h3>🌱 碳排放实时监测</h3>
+<div class="stats">
+<div class="stat-card"><div class="stat-label">🏭 当日碳排放总量</div><div class="stat-value">1,250</div><div class="stat-trend">kg CO₂</div></div>
+<div class="stat-card"><div class="stat-label">🚛 冷藏车排放</div><div class="stat-value">680</div><div class="stat-trend">kg CO₂ (54%)</div></div>
+<div class="stat-card"><div class="stat-label">❄️ 冷库排放</div><div class="stat-value">570</div><div class="stat-trend">kg CO₂ (46%)</div></div>
+<div class="stat-card"><div class="stat-label">📉 较昨日减排</div><div class="stat-value" style="color:var(--success)">-5.2%</div><div class="stat-trend trend-up">✅ 减排效果显著</div></div>
+</div>
+</div>
+<div class="card">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+<div>
+<h3>📈 7天碳排放趋势</h3>
+<div class="chart-placeholder">折线图：近7天碳排放量变化</div>
+</div>
+<div>
+<h3>🥧 排放来源占比</h3>
+<div class="chart-placeholder">饼图：冷库/冷藏车/其他 占比</div>
+</div>
+</div>
+</div>
+<div class="card">
+<h3>🏆 各设施碳排放排名</h3>
+<table class="table">
+<tr><th>排名</th><th>设施名称</th><th>类型</th><th>日排放量(kg)</th><th>环比</th></tr>
+<tr><td>1</td><td>桂A12345</td><td>冷藏车</td><td>85.2</td><td><span class="tag tag-red">↑ 12%</span></td></tr>
+<tr><td>2</td><td>南宁冷库A座</td><td>冷库</td><td>72.5</td><td><span class="tag tag-green">↓ 5%</span></td></tr>
+<tr><td>3</td><td>桂B67890</td><td>冷藏车</td><td>68.3</td><td><span class="tag tag-yellow">→ 持平</span></td></tr>
+</table>
+</div>
+<div class="card">
+<div class="btn-group">
+<button class="btn btn-default">⚙️ 自定义碳排放因子</button>
+<button class="btn btn-default">📄 导出碳排放报告</button>
+</div>
+</div>
+</div>
+
+<!-- SI-001 微服务监控 -->
+<div class="page" id="si-monitor">
+<div class="card">
+<h3>🔧 微服务高可用架构监控</h3>
+<div class="stats">
+<div class="stat-card"><div class="stat-label">✅ 系统可用性</div><div class="stat-value" style="color:var(--success)">99.95%</div><div class="stat-trend trend-up">✅ 超过99.9%目标</div></div>
+<div class="stat-card"><div class="stat-label">⚡ 峰值吞吐量</div><div class="stat-value">12,500</div><div class="stat-trend trend-up">✅ 超过10000条/秒</div></div>
+<div class="stat-card"><div class="stat-label">🔴 异常服务</div><div class="stat-value" style="color:var(--success)">0</div><div class="stat-trend">全部正常</div></div>
+<div class="stat-card"><div class="stat-label">🔄 重启次数</div><div class="stat-value">2</div><div class="stat-trend">本周</div></div>
+</div>
+</div>
+<div class="card">
+<h3>📋 服务状态列表</h3>
+<table class="table">
+<tr><th>服务名称</th><th>实例数</th><th>CPU</th><th>内存</th><th>状态</th><th>操作</th></tr>
+<tr><td>🌐 gateway-service</td><td>2/2</td><td>23%</td><td>512MB</td><td><span class="tag tag-green">🟢 健康</span></td><td><button class="btn btn-sm btn-default">查看日志</button> <button class="btn btn-sm btn-warn">重启</button></td></tr>
+<tr><td>📊 data-service</td><td>3/3</td><td>45%</td><td>1.2GB</td><td><span class="tag tag-green">🟢 健康</span></td><td><button class="btn btn-sm btn-default">查看日志</button> <button class="btn btn-sm btn-warn">重启</button></td></tr>
+<tr><td>🤖 ai-service</td><td>2/2</td><td>67%</td><td>2.0GB</td><td><span class="tag tag-green">🟢 健康</span></td><td><button class="btn btn-sm btn-default">查看日志</button> <button class="btn btn-sm btn-warn">重启</button></td></tr>
+<tr><td>⛓️ blockchain-service</td><td>1/1</td><td>15%</td><td>256MB</td><td><span class="tag tag-green">🟢 健康</span></td><td><button class="btn btn-sm btn-default">查看日志</button> <button class="btn btn-sm btn-warn">重启</button></td></tr>
+</table>
+</div>
+</div>
+
+<!-- API-001 API网关管理 -->
+<div class="page" id="api-manage">
+<div class="card">
+<div class="btn-group">
+<button class="btn btn-primary">➕ 新增API</button>
+<button class="btn btn-default">📄 文档导出</button>
+<button class="btn btn-default">🔍 在线测试</button>
+</div>
+<div class="search-bar">
+<select class="select"><option>全部类别</option><option>溯源接口</option><option>设备数据</option><option>模型调用</option><option>区块链验证</option></select>
+<select class="select"><option>全部状态</option><option>启用</option><option>停用</option></select>
+</div>
+</div>
+<div class="card">
+<h3>🔌 标准化对外API列表 (12项)</h3>
+<table class="table">
+<tr><th>类别</th><th>API名称</th><th>方法</th><th>路径</th><th>限流</th><th>状态</th><th>操作</th></tr>
+<tr><td><span class="tag tag-blue">溯源</span></td><td>批次追溯查询</td><td>GET</td><td>/api/v1/trace/{batchId}</td><td>1000/min</td><td><span class="tag tag-green">✅ 启用</span></td><td><button class="btn btn-sm btn-primary">测试</button> <button class="btn btn-sm btn-default">配置</button></td></tr>
+<tr><td><span class="tag tag-blue">溯源</span></td><td>扫码溯源</td><td>GET</td><td>/api/v1/trace/scan</td><td>5000/min</td><td><span class="tag tag-green">✅ 启用</span></td><td><button class="btn btn-sm btn-primary">测试</button> <button class="btn btn-sm btn-default">配置</button></td></tr>
+<tr><td><span class="tag tag-blue">设备</span></td><td>实时数据查询</td><td>GET</td><td>/api/v1/device/data</td><td>2000/min</td><td><span class="tag tag-green">✅ 启用</span></td><td><button class="btn btn-sm btn-primary">测试</button> <button class="btn btn-sm btn-default">配置</button></td></tr>
+<tr><td><span class="tag tag-blue">模型</span></td><td>品质预测</td><td>POST</td><td>/api/v1/ai/predict</td><td>500/min</td><td><span class="tag tag-green">✅ 启用</span></td><td><button class="btn btn-sm btn-primary">测试</button> <button class="btn btn-sm btn-default">配置</button></td></tr>
+<tr><td><span class="tag tag-blue">区块链</span></td><td>数据校验</td><td>POST</td><td>/api/v1/blockchain/verify</td><td>300/min</td><td><span class="tag tag-green">✅ 启用</span></td><td><button class="btn btn-sm btn-primary">测试</button> <button class="btn btn-sm btn-default">配置</button></td></tr>
+</table>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<!-- 弹窗示例 -->
+<div class="modal-overlay" id="modal-demo">
+<div class="modal">
+<div class="modal-header">
+<h3>弹窗标题</h3>
+<button class="btn btn-sm btn-default" onclick="closeModal()">✕</button>
+</div>
+<div class="modal-body">
+<p>弹窗内容区域...</p>
+</div>
+<div class="modal-footer">
+<button class="btn btn-default" onclick="closeModal()">取消</button>
+<button class="btn btn-primary">确认</button>
+</div>
+</div>
+</div>
+
+<script>
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.menu li').forEach(li => li.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  event.target.closest('li').classList.add('active');
+}
+function closeModal() {
+  document.getElementById('modal-demo').classList.remove('active');
+}
+</script>
+
+</body>
+</html>
