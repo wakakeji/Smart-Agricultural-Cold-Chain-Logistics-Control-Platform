@@ -19,18 +19,18 @@ public class ApiManageService {
 
     public List<Map<String, Object>> listApis() {
         return List.of(
-                api("AUTH-LOGIN", "POST", "/api/auth/login", "用户登录", "auth"),
-                api("FACILITY-LIST", "GET", "/api/facilities", "设施列表", "facility"),
-                api("DASHBOARD", "GET", "/api/dashboard/overview", "指挥大屏", "dashboard"),
-                api("ALARM-LIST", "GET", "/api/alarm/list", "告警列表", "alarm"),
-                api("MONITOR", "GET", "/api/monitor/sensors", "实时传感器", "monitor"),
-                api("BATCH-CREATE", "POST", "/api/batch/create", "批次赋码", "trace"),
-                api("TRACE-QUERY", "GET", "/api/trace/query", "追溯查询", "trace"),
-                api("CHAIN-TX", "GET", "/api/blockchain/txs", "链上存证", "blockchain"),
-                api("PREDICT", "GET", "/api/predict/quality", "品质预测", "ai"),
-                api("TRANSPORT", "GET", "/api/transport/ongoing", "运输监控", "transport"),
-                api("LOSS", "GET", "/api/loss/overview", "损耗概览", "stats"),
-                api("CARBON", "GET", "/api/carbon/overview", "碳排放", "stats")
+                api("AUTH-LOGIN", "POST", "/api/auth/login", "用户登录", "认证"),
+                api("FACILITY-LIST", "GET", "/api/facilities", "设施列表", "设施"),
+                api("DASHBOARD", "GET", "/api/dashboard/overview", "指挥大屏", "大屏"),
+                api("ALARM-LIST", "GET", "/api/alarm/list", "告警列表", "告警"),
+                api("MONITOR", "GET", "/api/monitor/sensors", "实时传感器", "监测"),
+                api("BATCH-CREATE", "POST", "/api/batch/create", "批次赋码", "追溯"),
+                api("TRACE-QUERY", "GET", "/api/trace/query", "追溯查询", "追溯"),
+                api("CHAIN-TX", "GET", "/api/blockchain/txs", "链上存证", "区块链"),
+                api("PREDICT", "GET", "/api/predict/quality", "品质预测", "AI"),
+                api("TRANSPORT", "GET", "/api/transport/ongoing", "运输监控", "运输"),
+                api("LOSS", "GET", "/api/loss/overview", "损耗概览", "统计"),
+                api("CARBON", "GET", "/api/carbon/overview", "碳排放", "统计")
         );
     }
 
@@ -40,7 +40,7 @@ public class ApiManageService {
         item.put("keyId", UUID.randomUUID().toString().substring(0, 8));
         item.put("name", name == null || name.isBlank() ? "默认应用" : name);
         item.put("apiKey", key);
-        item.put("status", "ACTIVE");
+        item.put("status", "启用");
         item.put("qpsLimit", 100);
         item.put("createTime", LocalDateTime.now().format(FMT));
         item.put("callCount", 0);
@@ -74,7 +74,7 @@ public class ApiManageService {
         m.put("path", path);
         m.put("name", name);
         m.put("module", module);
-        m.put("status", "ONLINE");
+        m.put("status", "在线");
         m.put("version", "v1");
         return m;
     }

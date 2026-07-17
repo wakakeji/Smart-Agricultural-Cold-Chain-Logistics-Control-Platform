@@ -73,7 +73,7 @@ public class TransportService {
     }
 
     private TransportOrderVO toVo(TransportOrder o) {
-        Facility v = o.getVehicleId() == null ? null : facilityMapper.selectById(o.getVehicleId());
+        Facility v = resolveVehicle(o);
         ThreadLocalRandom r = ThreadLocalRandom.current();
         int progress = "COMPLETED".equals(o.getStatus()) ? 100
                 : "PENDING".equals(o.getStatus()) ? 0
@@ -82,7 +82,7 @@ public class TransportService {
                 .orderId(o.getOrderId())
                 .orderNo(o.getOrderNo())
                 .batchId(o.getBatchId())
-                .vehicleId(o.getVehicleId())
+                .vehicleId(v == null ? o.getVehicleId() : v.getFacilityId())
                 .vehicleName(v == null ? "-" : v.getName())
                 .route(o.getRoute())
                 .status(o.getStatus())
@@ -94,5 +94,23 @@ public class TransportService {
                 .speed(v != null && "ONLINE".equals(v.getStatus()) ? 50.0 + o.getOrderId() % 20 : 0.0)
                 .progress(progress)
                 .build();
+    }
+
+    /** 设施种子重建后 ID 变化，按冷藏车列表兜底匹配 */
+    private Facility resolveVehicle(TransportOrder o) {
+        if (o.getVehicleId() != null) {
+            Facility f = facilityMapper.selectById(o.getVehicleId());
+            if (f != null && "REFRIGERATED_VEHICLE".equals(f.getType())) {
+                return f;
+            }
+        }
+        List<Facility> vehicles = facilityMapper.selectList(new LambdaQueryWrapper<Facility>()
+                .eq(Facility::getType, "REFRIGERATED_VEHICLE")
+                .orderByAsc(Facility::getFacilityId));
+        if (vehicles.isEmpty()) {
+            return null;
+        }
+        long idx = o.getOrderId() == null ? 0 : Math.floorMod(o.getOrderId() - 1, vehicles.size());
+        return vehicles.get((int) idx);
     }
 }

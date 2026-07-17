@@ -33,7 +33,9 @@
               <el-descriptions-item label="剩余货架期">{{ result.remainingShelfLife }}h</el-descriptions-item>
               <el-descriptions-item label="置信度">{{ result.confidence }}</el-descriptions-item>
               <el-descriptions-item label="风险">
-                <el-tag :type="riskType(String(result.riskLevel))">{{ result.riskLevel }}</el-tag>
+                <el-tag :type="riskType(String(result.riskLevel))">
+                  {{ (result.riskLabel as string) || riskLabel(String(result.riskLevel)) }}
+                </el-tag>
               </el-descriptions-item>
             </el-descriptions>
             <div ref="curveRef" class="chart" />
@@ -75,6 +77,13 @@ function riskType(level: string) {
   if (level === 'LOW') return 'success'
   if (level === 'MEDIUM') return 'warning'
   return 'danger'
+}
+
+function riskLabel(level: string) {
+  if (level === 'LOW') return '低'
+  if (level === 'MEDIUM') return '中'
+  if (level === 'HIGH') return '高'
+  return level
 }
 
 function renderCurve(curve: Record<string, unknown>[]) {

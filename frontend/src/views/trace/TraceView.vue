@@ -3,7 +3,7 @@
     <el-card shadow="never" class="search-card">
       <el-form :inline="true" @submit.prevent="onSearch">
         <el-form-item label="批次号">
-          <el-input v-model="batchNo" clearable placeholder="如 20260717000001" style="width: 200px" />
+          <el-input v-model="batchNo" clearable placeholder="如 20260716000001" style="width: 200px" />
         </el-form-item>
         <el-form-item label="产品名称">
           <el-input v-model="productName" clearable placeholder="模糊匹配" style="width: 160px" />
@@ -13,6 +13,11 @@
           <el-button :disabled="!result" :loading="verifying" @click="onVerify">链上验证</el-button>
         </el-form-item>
       </el-form>
+      <div class="demo-tips">
+        <span>示例：</span>
+        <el-button link type="primary" @click="fillDemo('20260716000001')">20260716000001 百色芒果</el-button>
+        <el-button link type="primary" @click="fillDemo('20260716000002')">20260716000002 武鸣沃柑</el-button>
+      </div>
       <el-alert v-if="verifyMsg" :title="verifyMsg" :type="verifyOk ? 'success' : 'error'" show-icon :closable="false" />
     </el-card>
 
@@ -124,6 +129,12 @@ async function onSearch() {
   }
 }
 
+function fillDemo(no: string) {
+  batchNo.value = no
+  productName.value = ''
+  onSearch()
+}
+
 async function onVerify() {
   if (!result.value) return
   verifying.value = true
@@ -152,6 +163,7 @@ onMounted(async () => {
 <style scoped>
 .page { padding: 4px; }
 .search-card :deep(.el-form-item) { margin-bottom: 0; }
+.demo-tips { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; color: #909399; font-size: 13px; }
 .mt { margin-top: 16px; }
 .mono { font-family: ui-monospace, Consolas, monospace; font-size: 12px; word-break: break-all; }
 .node-title { font-weight: 600; margin-bottom: 4px; }

@@ -50,6 +50,7 @@
           :playback-index="playbackIndex"
           :zoom="zoom"
           @select="showDetail"
+          @fail="onBaiduFail"
         />
         <MockMap
           v-else
@@ -226,6 +227,11 @@ function statusTag(s: string) {
   if (s === 'ONLINE') return 'success'
   if (s === 'ALARM') return 'danger'
   return 'info'
+}
+
+function onBaiduFail(message: string) {
+  useBaidu.value = false
+  ElMessage.warning(`百度地图不可用，已切换示意地图：${message}`)
 }
 
 onMounted(async () => {

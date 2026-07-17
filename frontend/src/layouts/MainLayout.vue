@@ -107,7 +107,9 @@ async function onLogout() {
 .aside {
   background: #1d1e1f;
   transition: width .2s;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: 100vh;
 }
 .brand {
   height: 56px;

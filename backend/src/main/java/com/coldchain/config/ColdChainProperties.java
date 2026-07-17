@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "coldchain")
 public class ColdChainProperties {
 
+    /** 对外访问前端根地址，用于生成手机可扫的绝对二维码链接 */
+    private String publicBaseUrl = "http://192.168.1.3:5173";
     private Jwt jwt = new Jwt();
     private Auth auth = new Auth();
     private Influx influx = new Influx();

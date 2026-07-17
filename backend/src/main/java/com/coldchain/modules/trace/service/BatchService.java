@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.coldchain.common.exception.BizException;
 import com.coldchain.common.page.PageQuery;
 import com.coldchain.common.page.PageResult;
+import com.coldchain.config.ColdChainProperties;
 import com.coldchain.modules.trace.dto.BatchCreateRequest;
 import com.coldchain.modules.trace.dto.BatchCreateResultVO;
 import com.coldchain.modules.trace.dto.QrCodeVO;
@@ -20,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,11 +35,12 @@ import java.time.format.DateTimeFormatter;
 @RequiredArgsConstructor
 public class BatchService {
 
-    private static final String H5_BASE = "/h5/trace?batchNo=";
+    private static final String H5_PATH = "/h5/trace?batchNo=";
 
     private final ProductBatchMapper productBatchMapper;
     private final TraceRecordMapper traceRecordMapper;
     private final MockBlockchainService mockBlockchainService;
+    private final ColdChainProperties coldChainProperties;
 
     @Transactional
     public BatchCreateResultVO create(BatchCreateRequest req) {
@@ -108,7 +111,8 @@ public class BatchService {
         if (batch == null) {
             throw new BizException("批次不存在");
         }
-        String content = batch.getQrCode() != null ? batch.getQrCode() : buildQrUrl(batch.getBatchNo());
+        String content = toAbsoluteQrUrl(batch.getQrCode() != null ? batch.getQrCode() : buildQrUrl(batch.getBatchNo()),
+                batch.getBatchNo());
         return QrCodeVO.builder()
                 .batchId(batch.getBatchId())
                 .batchNo(batch.getBatchNo())
@@ -127,8 +131,30 @@ public class BatchService {
     }
 
     private String buildQrUrl(String batchNo) {
-        // 前端 H5 路由，扫码可打开追溯页
-        return H5_BASE + batchNo;
+        return toAbsoluteQrUrl(H5_PATH + batchNo, batchNo);
+    }
+
+    private String toAbsoluteQrUrl(String raw, String batchNo) {
+        if (StringUtils.hasText(raw) && raw.startsWith("http")) {
+            // 旧数据若写死 localhost / trace.local，强制改写为公网基址
+            if (raw.contains("localhost") || raw.contains("127.0.0.1") || raw.contains("trace.local")) {
+                return publicBase() + H5_PATH + batchNo;
+            }
+            return raw;
+        }
+        String path = StringUtils.hasText(raw) ? raw : (H5_PATH + batchNo);
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+        return publicBase() + path;
+    }
+
+    private String publicBase() {
+        String base = coldChainProperties.getPublicBaseUrl();
+        if (!StringUtils.hasText(base)) {
+            base = "http://192.168.1.3:5173";
+        }
+        return base.endsWith("/") ? base.substring(0, base.length() - 1) : base.trim();
     }
 
     private LoginUser currentUser() {

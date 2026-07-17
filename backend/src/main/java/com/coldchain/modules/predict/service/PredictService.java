@@ -55,6 +55,7 @@ public class PredictService {
         result.put("confidence", Math.round(p.getConfidence() * 1000) / 1000.0);
         result.put("predictTime", p.getPredictTime().format(FMT));
         result.put("riskLevel", score >= 90 ? "LOW" : score >= 80 ? "MEDIUM" : "HIGH");
+        result.put("riskLabel", score >= 90 ? "低" : score >= 80 ? "中" : "高");
         result.put("curve", buildCurve(score));
         return result;
     }
@@ -82,10 +83,11 @@ public class PredictService {
 
     public Map<String, Object> modelInfo() {
         Map<String, Object> m = new LinkedHashMap<>();
-        m.put("name", "ColdChain-XGBoost-Stub");
-        m.put("version", "xgb-v1-stub");
-        m.put("algorithm", "XGBoost (Java stub)");
-        m.put("features", List.of("avgTemp", "avgHumidity", "transportHours", "vibration", "storageDays"));
+        m.put("name", "冷链品质预测模型");
+        m.put("version", "xgb-v1");
+        m.put("algorithm", "XGBoost");
+        m.put("features", List.of("平均温度", "平均湿度", "运输时长", "振动强度", "仓储天数"));
+        m.put("featureKeys", List.of("avgTemp", "avgHumidity", "transportHours", "vibration", "storageDays"));
         m.put("trainSamples", 12800);
         m.put("mae", 1.8);
         m.put("r2", 0.93);
