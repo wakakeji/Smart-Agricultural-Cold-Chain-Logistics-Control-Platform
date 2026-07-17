@@ -30,7 +30,6 @@ export const useUserStore = defineStore('user', () => {
   async function login(payload: {
     username: string
     password: string
-    role: string
     rememberMe?: boolean
   }) {
     const data = await loginApi(payload)

@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
- * 登录请求
+ * 登录请求（角色由账号在库中的 role_code 决定，无需前端选择）
  */
 @Data
 public class LoginRequest {
@@ -18,7 +18,7 @@ public class LoginRequest {
     @Size(min = 6, max = 32, message = "密码长度 6-32")
     private String password;
 
-    @NotBlank(message = "角色不能为空")
+    /** 兼容旧客户端；忽略，以用户表角色为准 */
     private String role;
 
     private Boolean rememberMe = false;

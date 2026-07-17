@@ -1,11 +1,18 @@
 <template>
   <div class="page">
     <el-card shadow="never" class="stats-card">
+      <el-alert
+        type="info"
+        :closable="false"
+        title="VM-003 预警响应联动：页面支持待处理/历史处理、分级处置与台账。短信/极光推送/Drools 在演示环境为规则模拟通道（紧急/重要=短信+APP，普通=仅APP）。"
+        show-icon
+        class="mb"
+      />
       <div class="stats">
         <div class="stat" @click="quickStatus('')"><b>{{ stats?.total ?? 0 }}</b><span>全部</span></div>
         <div class="stat pending" @click="quickStatus('PENDING')"><b>{{ stats?.pending ?? 0 }}</b><span>待处理</span></div>
         <div class="stat processing" @click="quickStatus('PROCESSING')"><b>{{ stats?.processing ?? 0 }}</b><span>处理中</span></div>
-        <div class="stat done" @click="quickStatus('RESOLVED,IGNORED')"><b>{{ (stats?.resolved ?? 0) + (stats?.ignored ?? 0) }}</b><span>已处理</span></div>
+        <div class="stat done" @click="quickStatus('RESOLVED,IGNORED')"><b>{{ (stats?.resolved ?? 0) + (stats?.ignored ?? 0) }}</b><span>已处理/归档</span></div>
       </div>
     </el-card>
 
@@ -77,17 +84,27 @@
       </div>
     </el-card>
 
-    <el-drawer v-model="drawer" title="告警详情" size="400px">
+    <el-drawer v-model="drawer" title="告警详情 / 预警工单" size="420px">
       <template v-if="current">
+        <p><b>工单号：</b>{{ detailExt?.workOrderNo || ('WO-' + current.alarmId) }}</p>
+        <p><b>负责人：</b>{{ detailExt?.assignee || '值班负责人' }}</p>
         <p><b>级别：</b>{{ dictLabel('alarm_level', current.level) }}</p>
         <p><b>类型：</b>{{ dictLabel('alarm_type', current.type) }}</p>
         <p><b>来源：</b>{{ current.sourceName }}</p>
         <p><b>内容：</b>{{ current.content }}</p>
         <p><b>当前值：</b>{{ current.currentValue ?? '-' }}</p>
         <p><b>阈值：</b>{{ current.threshold ?? '-' }}</p>
-        <p><b>状态：</b>{{ statusText(current.status) }}</p>
+        <p><b>状态：</b>{{ statusText(current.status) }}{{ detailExt?.archived ? '（已归档）' : '' }}</p>
         <p><b>产生时间：</b>{{ formatTime(current.createTime) }}</p>
-        <el-divider>处理记录</el-divider>
+        <el-divider>推送通道（演示）</el-divider>
+        <p>
+          <el-tag v-for="c in (detailExt?.notifyChannels || notifyChannelsOf(current.level))" :key="c" class="ch" size="small">
+            {{ c === 'SMS' ? '短信' : 'APP推送' }}
+          </el-tag>
+        </p>
+        <p class="muted">{{ detailExt?.notifyDesc || notifyDescOf(current.level) }}</p>
+        <p class="muted">{{ detailExt?.ruleEngine || 'Drools规则引擎（演示）+ 极光推送/短信网关模拟通道' }}</p>
+        <el-divider>处理记录台账</el-divider>
         <p><b>处理人：</b>{{ current.handler || '-' }}</p>
         <p><b>处理时间：</b>{{ formatTime(current.handleTime) || '-' }}</p>
         <p><b>处理意见：</b>{{ current.handleRemark || '-' }}</p>
@@ -141,6 +158,14 @@ const selectedIds = ref<number[]>([])
 const dateRange = ref<string[] | null>(null)
 const drawer = ref(false)
 const current = ref<AlarmRecord | null>(null)
+const detailExt = ref<{
+  workOrderNo?: string
+  assignee?: string
+  notifyChannels?: string[]
+  notifyDesc?: string
+  ruleEngine?: string
+  archived?: boolean
+} | null>(null)
 const handleVisible = ref(false)
 const batchMode = ref(false)
 const handleTargetId = ref<number>()
@@ -213,8 +238,33 @@ function onSelect(rows: AlarmRecord[]) {
   selectedIds.value = rows.map((r) => r.alarmId)
 }
 
+function notifyChannelsOf(level?: string) {
+  if (level === 'CRITICAL' || level === 'EMERGENCY') return ['SMS', 'APP']
+  if (level === 'WARNING' || level === 'IMPORTANT') return ['SMS', 'APP']
+  return ['APP']
+}
+
+function notifyDescOf(level?: string) {
+  const ch = notifyChannelsOf(level).join('+')
+  return `级别 ${level || '-'} → 推送通道 ${ch}（演示环境不真实下发）`
+}
+
 async function showDetail(row: AlarmRecord) {
-  current.value = await fetchAlarmDetail(row.alarmId)
+  const raw = await fetchAlarmDetail(row.alarmId) as unknown as Record<string, unknown>
+  if (raw && raw.alarm && typeof raw.alarm === 'object') {
+    current.value = raw.alarm as AlarmRecord
+    detailExt.value = {
+      workOrderNo: String(raw.workOrderNo || ''),
+      assignee: String(raw.assignee || ''),
+      notifyChannels: (raw.notifyChannels as string[]) || [],
+      notifyDesc: String(raw.notifyDesc || ''),
+      ruleEngine: String(raw.ruleEngine || ''),
+      archived: Boolean(raw.archived),
+    }
+  } else {
+    current.value = raw as unknown as AlarmRecord
+    detailExt.value = null
+  }
   drawer.value = true
 }
 
@@ -300,8 +350,11 @@ onMounted(async () => {
 .stat.processing { background: #fdf6ec; }
 .stat.done { background: #f0f9eb; }
 .stats-card { margin-bottom: 12px; }
+.mb { margin-bottom: 12px; }
 .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .pager { margin-top: 12px; display: flex; justify-content: flex-end; }
+.ch { margin-right: 6px; }
+.muted { color: #909399; font-size: 13px; line-height: 1.5; }
 @media (max-width: 768px) {
   .stats { grid-template-columns: repeat(2, 1fr); }
 }

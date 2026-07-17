@@ -1,8 +1,14 @@
 <template>
   <div class="h5">
     <header class="hero">
-      <div class="brand">冷链溯源</div>
-      <p class="sub">扫码查看产品全链条信息</p>
+      <div class="hero-row">
+        <div>
+          <div class="brand">冷链溯源</div>
+          <p class="sub">扫码查看产品全链条信息</p>
+        </div>
+        <el-button v-if="isLogin" link type="primary" @click="onLogout">退出登录</el-button>
+        <el-button v-else link type="primary" @click="goLogin">去登录</el-button>
+      </div>
     </header>
 
     <section class="panel">
@@ -49,12 +55,17 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { fetchH5Trace, queryTrace, verifyTrace } from '@/api/trace'
 import type { TraceNode, TraceQueryResult } from '@/types/trace'
+import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
+const router = useRouter()
+const userStore = useUserStore()
+const isLogin = computed(() => userStore.isLogin)
 const batchNo = ref('')
 const loading = ref(false)
 const verifying = ref(false)
@@ -135,6 +146,16 @@ onMounted(() => {
     load()
   }
 })
+
+async function onLogout() {
+  await userStore.logout()
+  ElMessage.success('已退出')
+  router.replace('/login')
+}
+
+function goLogin() {
+  router.push('/login')
+}
 </script>
 
 <style scoped>
@@ -148,6 +169,7 @@ onMounted(() => {
   font-family: "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 .hero { margin-bottom: 18px; }
+.hero-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .brand {
   font-size: 28px;
   font-weight: 700;

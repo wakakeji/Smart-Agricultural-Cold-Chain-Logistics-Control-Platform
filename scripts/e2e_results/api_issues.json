@@ -1,0 +1,25 @@
+{
+  "generated_at": "2026-07-17T15:37:58",
+  "base": "http://127.0.0.1:8080",
+  "issue_count": 3,
+  "issues": [
+    {
+      "page": "地图设施",
+      "severity": "info",
+      "message": "数据为空或 records=[]",
+      "detail": ""
+    },
+    {
+      "page": "路线规划",
+      "severity": "info",
+      "message": "数据为空或 records=[]",
+      "detail": ""
+    },
+    {
+      "page": "地图监控",
+      "severity": "info",
+      "message": "已配置百度 AK，若弹窗“服务被禁用”需在百度控制台开通 JS API/认证",
+      "detail": ""
+    }
+  ]
+}

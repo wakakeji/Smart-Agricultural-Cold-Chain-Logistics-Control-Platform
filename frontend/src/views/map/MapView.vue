@@ -14,7 +14,8 @@
       <el-button @click="searchLocate">搜索定位</el-button>
       <el-button @click="switchLayer">图层: {{ layerLabel }}</el-button>
       <el-button @click="toggleFullscreen">{{ isFullscreen ? '退出全屏' : '全屏' }}</el-button>
-      <el-button :disabled="!selected || selected.type !== 'REFRIGERATED_VEHICLE'" @click="startReplay">历史回放</el-button>
+      <el-button type="warning" plain @click="startReplay">历史回放</el-button>
+      <span class="hint">提示：先点选车辆再回放；未选中时自动使用第一辆车。手动刷新会抖动车辆位置。</span>
     </div>
 
     <div class="body">
@@ -164,8 +165,9 @@ async function load(refresh = false) {
   }
 }
 
-function handleRefresh() {
-  load(true)
+async function handleRefresh() {
+  await load(true)
+  ElMessage.success(`已刷新：冷库 ${allStorages.value.length} · 车辆 ${allVehicles.value.length}（坐标已抖动）`)
 }
 
 function setType(t: 'all' | 'storage' | 'vehicle') {
@@ -208,8 +210,26 @@ async function showDetail(item: FacilityItem) {
 }
 
 async function startReplay() {
-  if (!selected.value || selected.value.type !== 'REFRIGERATED_VEHICLE') return
-  trackPoints.value = await fetchVehicleTrack(selected.value.id)
+  let vehicle = selected.value?.type === 'REFRIGERATED_VEHICLE' ? selected.value : null
+  if (!vehicle) {
+    vehicle = allVehicles.value[0] || null
+  }
+  if (!vehicle) {
+    ElMessage.warning('暂无车辆可回放，请先切换到「仅车辆」或等待设施加载完成')
+    return
+  }
+  selected.value = vehicle
+  filterType.value = 'vehicle'
+  try {
+    trackPoints.value = await fetchVehicleTrack(vehicle.id)
+  } catch (e: unknown) {
+    ElMessage.error(e instanceof Error ? e.message : '获取轨迹失败')
+    return
+  }
+  if (!trackPoints.value.length) {
+    ElMessage.warning('该车辆暂无轨迹点')
+    return
+  }
   playbackIndex.value = 0
   if (replayTimer) window.clearInterval(replayTimer)
   replayTimer = window.setInterval(() => {
@@ -220,7 +240,7 @@ async function startReplay() {
     }
     playbackIndex.value += 1
   }, 400)
-  ElMessage.info('开始历史轨迹回放')
+  ElMessage.success(`开始回放：${vehicle.name}（${trackPoints.value.length} 个点）`)
 }
 
 function statusTag(s: string) {
@@ -261,6 +281,7 @@ onUnmounted(() => {
 .map-page { display: flex; flex-direction: column; gap: 12px; height: calc(100vh - 120px); }
 .map-page.fullscreen { height: 100vh; padding: 12px; background: #0f172a; }
 .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.hint { color: #909399; font-size: 12px; }
 .body { flex: 1; display: flex; gap: 12px; min-height: 0; }
 .side {
   width: 240px;

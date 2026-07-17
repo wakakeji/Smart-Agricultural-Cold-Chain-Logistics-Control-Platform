@@ -1,0 +1,7 @@
+TRANSPORT TO20260716003 vehicle=桂C·D1003 route=柳州->北海
+TRANSPORT TO20260716001 vehicle=桂A·D1001 route=南宁->柳州
+TRANSPORT TO20260716002 vehicle=桂B·D1002 route=南宁->桂林
+ALARM 桂林保鲜冷库C区 | 温度超标：当前 6.8℃，阈值 4.0℃
+ALARM 桂林保鲜冷库C区 | 温度超标：当前 6.8℃，阈值 4.0℃
+ALARM 桂林保鲜冷库C区 | 温度超标：当前 6.8℃，阈值 4.0℃
+FEATURES ['平均温度', '平均湿度', '运输时长', '振动强度', '仓储天数']

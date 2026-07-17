@@ -13,43 +13,11 @@
         active-text-color="#fff"
         router
       >
-        <el-sub-menu index="monitor-center">
-          <template #title><span>监控中心</span></template>
-          <el-menu-item index="/map">地图监控</el-menu-item>
-          <el-menu-item index="/dashboard">指挥大屏</el-menu-item>
-          <el-menu-item index="/alarm">预警管理</el-menu-item>
-        </el-sub-menu>
-        <el-sub-menu index="env">
-          <template #title><span>环境监测</span></template>
-          <el-menu-item index="/monitor">实时数据</el-menu-item>
-          <el-menu-item index="/data-quality">数据质量</el-menu-item>
-        </el-sub-menu>
-        <el-sub-menu index="trace">
-          <template #title><span>追溯管理</span></template>
-          <el-menu-item index="/code">赋码管理</el-menu-item>
-          <el-menu-item index="/trace">追溯查询</el-menu-item>
-          <el-menu-item index="/blockchain">区块链存证</el-menu-item>
-        </el-sub-menu>
-        <el-sub-menu index="ai">
-          <template #title><span>AI智能</span></template>
-          <el-menu-item index="/predict">品质预测</el-menu-item>
-          <el-menu-item index="/suggestion">决策建议</el-menu-item>
-        </el-sub-menu>
-        <el-sub-menu index="transport">
-          <template #title><span>运输管理</span></template>
-          <el-menu-item index="/route">路线规划</el-menu-item>
-          <el-menu-item index="/transport">运输监控</el-menu-item>
-        </el-sub-menu>
-        <el-sub-menu index="stats">
-          <template #title><span>统计分析</span></template>
-          <el-menu-item index="/loss">损耗率</el-menu-item>
-          <el-menu-item index="/carbon">碳排放</el-menu-item>
-        </el-sub-menu>
-        <el-sub-menu v-if="userStore.role === 'admin'" index="system">
-          <template #title><span>系统管理</span></template>
-          <el-menu-item index="/user">用户权限</el-menu-item>
-          <el-menu-item index="/service-monitor">系统/服务监控</el-menu-item>
-          <el-menu-item index="/api-manage">API管理</el-menu-item>
+        <el-sub-menu v-for="g in menus" :key="g.key" :index="g.key">
+          <template #title><span>{{ g.title }}</span></template>
+          <el-menu-item v-for="c in g.children" :key="c.path" :index="c.path">
+            {{ c.title }}
+          </el-menu-item>
         </el-sub-menu>
       </el-menu>
     </el-aside>
@@ -79,6 +47,7 @@ import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Fold, Expand } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
+import { menusForRole } from '@/config/roleMenus'
 
 const route = useRoute()
 const router = useRouter()
@@ -92,9 +61,10 @@ const roleMap: Record<string, string> = {
   wholesaler: '批发商',
   retailer: '零售商',
   consumer: '消费者',
-  admin: '管理员',
+  admin: '平台管理员',
 }
 const roleLabel = computed(() => roleMap[userStore.role] || userStore.role)
+const menus = computed(() => menusForRole(userStore.role))
 
 async function onLogout() {
   await userStore.logout()

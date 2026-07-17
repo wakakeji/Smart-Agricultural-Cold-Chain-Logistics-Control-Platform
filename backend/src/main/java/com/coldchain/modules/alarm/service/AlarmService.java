@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.coldchain.common.exception.BizException;
 import com.coldchain.common.page.PageQuery;
 import com.coldchain.common.page.PageResult;
+import com.coldchain.modules.alarm.dto.AlarmDetailVO;
 import com.coldchain.modules.alarm.dto.AlarmHandleRequest;
 import com.coldchain.modules.alarm.dto.AlarmStatsVO;
 import com.coldchain.modules.alarm.entity.AlarmRecord;
@@ -52,13 +53,31 @@ public class AlarmService {
         return record;
     }
 
+    /** 详情 + VM-003 推送/工单演示信息 */
+    public AlarmDetailVO detailVo(Long id) {
+        AlarmRecord record = detail(id);
+        List<String> channels = notifyChannels(record.getLevel());
+        boolean archived = "RESOLVED".equals(record.getStatus()) || "IGNORED".equals(record.getStatus());
+        return AlarmDetailVO.builder()
+                .alarm(record)
+                .workOrderNo("WO-" + record.getAlarmId())
+                .assignee(archived && StringUtils.hasText(record.getHandler()) ? record.getHandler() : "值班负责人")
+                .notifyChannels(channels)
+                .notifyDesc(buildNotifyDesc(record.getLevel(), channels))
+                .ruleEngine("Drools规则引擎（演示）+ 极光推送/短信网关模拟通道")
+                .archived(archived)
+                .build();
+    }
+
     @Transactional
     public void handle(Long id, AlarmHandleRequest req) {
         validateStatus(req.getStatus());
         AlarmRecord record = detail(id);
         applyHandle(record, req.getStatus(), req.getHandleRemark());
         alarmRecordMapper.updateById(record);
-        log.info("处理告警 id={} status={} by={}", id, req.getStatus(), record.getHandler());
+        List<String> channels = notifyChannels(record.getLevel());
+        log.info("处理告警 id={} status={} by={} notifyChannels={}（模拟短信/APP）",
+                id, req.getStatus(), record.getHandler(), channels);
     }
 
     @Transactional
@@ -111,6 +130,22 @@ public class AlarmService {
         record.setHandleRemark(remark);
         record.setHandler(currentHandlerName());
         record.setHandleTime(LocalDateTime.now());
+    }
+
+    /** 紧急：短信+APP；重要：短信+APP；普通：仅APP */
+    private List<String> notifyChannels(String level) {
+        if ("CRITICAL".equalsIgnoreCase(level) || "EMERGENCY".equalsIgnoreCase(level)) {
+            return List.of("SMS", "APP");
+        }
+        if ("WARNING".equalsIgnoreCase(level) || "IMPORTANT".equalsIgnoreCase(level)) {
+            return List.of("SMS", "APP");
+        }
+        return List.of("APP");
+    }
+
+    private String buildNotifyDesc(String level, List<String> channels) {
+        String joined = String.join("+", channels);
+        return "级别 " + level + " → 推送通道 " + joined + "（演示环境不真实下发，仅记录规则）";
     }
 
     private void validateStatus(String status) {

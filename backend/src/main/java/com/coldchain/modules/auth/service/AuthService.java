@@ -53,9 +53,6 @@ public class AuthService {
         if (user.getStatus() != null && user.getStatus() == 0) {
             throw new BizException(403, "账号已禁用");
         }
-        if (!req.getRole().equals(user.getRoleCode())) {
-            throw new BizException(401, "角色不匹配，请选择正确的登录角色");
-        }
         if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
             onLoginFail(user);
             throw new BizException(401, "用户名或密码错误");

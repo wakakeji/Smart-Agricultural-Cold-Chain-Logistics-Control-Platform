@@ -4,7 +4,6 @@ import type { LoginResult, UserInfo } from '@/types/api'
 export function loginApi(data: {
   username: string
   password: string
-  role: string
   rememberMe?: boolean
 }) {
   return post<LoginResult>('/auth/login', data)

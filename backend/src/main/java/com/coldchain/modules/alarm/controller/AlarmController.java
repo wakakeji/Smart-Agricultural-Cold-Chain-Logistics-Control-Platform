@@ -3,6 +3,7 @@ package com.coldchain.modules.alarm.controller;
 import com.coldchain.common.api.R;
 import com.coldchain.common.page.PageQuery;
 import com.coldchain.common.page.PageResult;
+import com.coldchain.modules.alarm.dto.AlarmDetailVO;
 import com.coldchain.modules.alarm.dto.AlarmHandleRequest;
 import com.coldchain.modules.alarm.dto.AlarmStatsVO;
 import com.coldchain.modules.alarm.entity.AlarmRecord;
@@ -35,10 +36,10 @@ public class AlarmController {
         return R.ok(alarmService.page(query, level, status, type, startTime, endTime));
     }
 
-    @Operation(summary = "告警详情")
+    @Operation(summary = "告警详情（含推送通道/工单演示字段）")
     @GetMapping("/{id}")
-    public R<AlarmRecord> detail(@PathVariable Long id) {
-        return R.ok(alarmService.detail(id));
+    public R<AlarmDetailVO> detail(@PathVariable Long id) {
+        return R.ok(alarmService.detailVo(id));
     }
 
     @Operation(summary = "处理单条告警")
