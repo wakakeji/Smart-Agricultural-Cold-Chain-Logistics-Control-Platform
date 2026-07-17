@@ -49,6 +49,12 @@ INSERT INTO sys_dict (dict_type, dict_code, dict_label, sort_order, remark) VALU
 ('carbon_source', 'VEHICLE', '运输车辆', 1, NULL),
 ('carbon_source', 'COLD_STORAGE', '冷库仓储', 2, NULL),
 ('carbon_source', 'PACKAGE', '包装环节', 3, NULL),
+-- 损耗类型
+('loss_type', 'TRANSPORT', '运输', 1, NULL),
+('loss_type', 'STORAGE', '仓储', 2, NULL),
+('loss_type', 'PACKAGE', '包装', 3, NULL),
+('loss_type', 'RETAIL', '零售', 4, NULL),
+('loss_type', 'SALE', '销售', 5, NULL),
 -- 设施类型
 ('facility_type', 'COLD_STORAGE', '冷库', 1, NULL),
 ('facility_type', 'REFRIGERATED_VEHICLE', '冷藏车', 2, NULL),

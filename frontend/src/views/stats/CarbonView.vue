@@ -19,16 +19,16 @@
       <el-col :xs="24" :md="14">
         <el-card shadow="never">
           <template #header><strong>排放明细</strong></template>
-          <el-table :data="detail" v-loading="loading" stripe max-height="360">
-            <el-table-column prop="sourceType" label="来源类型" width="110">
+          <el-table :data="detail" v-loading="loading" stripe max-height="420" table-layout="auto">
+            <el-table-column prop="sourceType" label="来源类型" min-width="110">
               <template #default="{ row }">{{ dictLabel('carbon_source', String(row.sourceType)) }}</template>
             </el-table-column>
-            <el-table-column prop="sourceName" label="来源名称" min-width="130" show-overflow-tooltip />
-            <el-table-column prop="emissionValue" label="排放量" width="90" />
-            <el-table-column prop="unit" label="单位" width="80" />
-            <el-table-column prop="period" label="周期" width="90" />
-            <el-table-column prop="calcMethod" label="方法" width="80" />
-            <el-table-column prop="calcTime" label="计算时间" width="150" />
+            <el-table-column prop="sourceName" label="来源名称" min-width="140" show-overflow-tooltip />
+            <el-table-column prop="emissionValue" label="排放量" min-width="100" />
+            <el-table-column prop="unit" label="单位" min-width="100" show-overflow-tooltip />
+            <el-table-column prop="period" label="周期" min-width="100" />
+            <el-table-column prop="calcMethod" label="方法" min-width="90" />
+            <el-table-column prop="calcTime" label="计算时间" min-width="160" show-overflow-tooltip />
           </el-table>
         </el-card>
       </el-col>

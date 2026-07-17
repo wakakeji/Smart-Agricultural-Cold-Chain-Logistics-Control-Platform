@@ -15,6 +15,12 @@
     </el-card>
 
     <template v-if="plan">
+      <el-alert
+        class="mb"
+        type="info"
+        :closable="false"
+        :title="String(plan.note || '规则引擎模拟路线（更换起终点会重算）')"
+      />
       <div class="route-hdr">
         {{ plan.origin }} → {{ plan.destination }}
         <el-tag type="success" size="small">推荐方案 {{ plan.recommend }}</el-tag>
@@ -41,10 +47,10 @@
 
       <el-card shadow="never" class="mt">
         <template #header><strong>路况摘要</strong></template>
-        <el-table :data="traffic" stripe size="small">
-          <el-table-column prop="road" label="路段" />
-          <el-table-column prop="level" label="路况" width="120" />
-          <el-table-column prop="speed" label="均速 km/h" width="110" />
+        <el-table :data="traffic" stripe size="small" table-layout="auto">
+          <el-table-column prop="road" label="路段" min-width="200" show-overflow-tooltip />
+          <el-table-column prop="level" label="路况" min-width="120" />
+          <el-table-column prop="speed" label="均速 km/h" min-width="120" />
         </el-table>
       </el-card>
     </template>
@@ -93,4 +99,5 @@ onMounted(onPlan)
 .meta { color: #909399; font-size: 13px; margin: 8px 0 4px; }
 .waypoints { font-size: 12px; color: var(--el-text-color-secondary); }
 .mt { margin-top: 12px; }
+.mb { margin-bottom: 12px; }
 </style>

@@ -277,14 +277,13 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  /* 按内容高度收缩，避免底部大片空白；条目多时再滚动 */
-  max-height: 220px;
+  max-height: min(36vh, 320px);
   overflow-y: auto;
   height: auto;
 }
 .alarm-item {
   display: grid;
-  grid-template-columns: 80px 140px 1fr 80px;
+  grid-template-columns: minmax(72px, 90px) minmax(100px, 160px) minmax(0, 1fr) minmax(70px, 90px);
   gap: 8px;
   align-items: center;
   padding: 8px 10px;
@@ -296,12 +295,17 @@ onUnmounted(() => {
 .alarm-item.warning { border-left: 3px solid #e6a23c; }
 .alarm-item.info { border-left: 3px solid #409eff; }
 .src { color: #93c5fd; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.content { color: #e2e8f0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.content { color: #e2e8f0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .time { color: #64748b; text-align: right; }
 @media (max-width: 1200px) {
   .kpi-row { grid-template-columns: repeat(3, 1fr); }
   .charts { grid-template-columns: 1fr; }
-  .alarm-item { grid-template-columns: 70px 1fr; }
-  .time, .src { display: none; }
+  .alarm-item { grid-template-columns: 70px minmax(0, 1fr) 70px; }
+  .src { display: none; }
+}
+@media (max-width: 768px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .alarm-item { grid-template-columns: 64px minmax(0, 1fr); }
+  .time { display: none; }
 }
 </style>

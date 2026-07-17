@@ -19,18 +19,18 @@ public class ApiManageService {
 
     public List<Map<String, Object>> listApis() {
         return List.of(
-                api("AUTH-LOGIN", "POST", "/api/auth/login", "用户登录", "认证"),
-                api("FACILITY-LIST", "GET", "/api/facilities", "设施列表", "设施"),
-                api("DASHBOARD", "GET", "/api/dashboard/overview", "指挥大屏", "大屏"),
-                api("ALARM-LIST", "GET", "/api/alarm/list", "告警列表", "告警"),
-                api("MONITOR", "GET", "/api/monitor/sensors", "实时传感器", "监测"),
-                api("BATCH-CREATE", "POST", "/api/batch/create", "批次赋码", "追溯"),
-                api("TRACE-QUERY", "GET", "/api/trace/query", "追溯查询", "追溯"),
-                api("CHAIN-TX", "GET", "/api/blockchain/txs", "链上存证", "区块链"),
-                api("PREDICT", "GET", "/api/predict/quality", "品质预测", "AI"),
-                api("TRANSPORT", "GET", "/api/transport/ongoing", "运输监控", "运输"),
-                api("LOSS", "GET", "/api/loss/overview", "损耗概览", "统计"),
-                api("CARBON", "GET", "/api/carbon/overview", "碳排放", "统计")
+                api("认证-登录", "POST", "/api/auth/login", "用户登录", "认证"),
+                api("设施-列表", "GET", "/api/facilities", "设施列表", "设施"),
+                api("大屏-概览", "GET", "/api/dashboard/overview", "指挥大屏", "大屏"),
+                api("告警-列表", "GET", "/api/alarm/list", "告警列表", "告警"),
+                api("监测-传感器", "GET", "/api/monitor/sensors", "实时传感器", "监测"),
+                api("追溯-赋码", "POST", "/api/batch/create", "批次赋码", "追溯"),
+                api("追溯-查询", "GET", "/api/trace/query", "追溯查询", "追溯"),
+                api("链上-存证", "GET", "/api/blockchain/txs", "链上存证", "区块链"),
+                api("AI-品质预测", "GET", "/api/predict/quality", "品质预测", "AI"),
+                api("运输-监控", "GET", "/api/transport/ongoing", "运输监控", "运输"),
+                api("统计-损耗", "GET", "/api/loss/overview", "损耗概览", "统计"),
+                api("统计-碳排", "GET", "/api/carbon/overview", "碳排放", "统计")
         );
     }
 

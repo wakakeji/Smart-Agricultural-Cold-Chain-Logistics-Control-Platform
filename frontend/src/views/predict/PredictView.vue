@@ -47,13 +47,13 @@
 
     <el-card shadow="never" class="mt">
       <template #header><strong>预测历史</strong></template>
-      <el-table :data="history" v-loading="loading" stripe>
-        <el-table-column prop="batchId" label="批次ID" width="90" />
-        <el-table-column prop="qualityScore" label="品质分" width="90" />
-        <el-table-column prop="remainingShelfLife" label="剩余货架期(h)" width="120" />
-        <el-table-column prop="confidence" label="置信度" width="90" />
-        <el-table-column prop="modelVersion" label="模型版本" width="120" />
-        <el-table-column prop="predictTime" label="预测时间" min-width="170" />
+      <el-table :data="history" v-loading="loading" stripe table-layout="auto">
+        <el-table-column prop="batchId" label="批次ID" min-width="100" />
+        <el-table-column prop="qualityScore" label="品质分" min-width="100" />
+        <el-table-column prop="remainingShelfLife" label="剩余货架期(h)" min-width="140" />
+        <el-table-column prop="confidence" label="置信度" min-width="100" />
+        <el-table-column prop="modelVersion" label="模型版本" min-width="120" show-overflow-tooltip />
+        <el-table-column prop="predictTime" label="预测时间" min-width="180" show-overflow-tooltip />
       </el-table>
     </el-card>
   </div>

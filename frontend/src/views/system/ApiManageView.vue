@@ -13,17 +13,17 @@
       <el-col :xs="24" :md="16">
         <el-card shadow="never">
           <template #header><strong>API 目录</strong></template>
-          <el-table :data="catalog" v-loading="loading" stripe>
-            <el-table-column prop="code" label="编码" width="130" />
-            <el-table-column prop="method" label="方法" width="70">
+          <el-table :data="catalog" v-loading="loading" stripe table-layout="auto">
+            <el-table-column prop="code" label="编码" min-width="120" show-overflow-tooltip />
+            <el-table-column prop="method" label="方法" min-width="80">
               <template #default="{ row }">
                 <el-tag :type="row.method === 'GET' ? 'success' : 'primary'" size="small">{{ row.method }}</el-tag>
               </template>
             </el-table-column>
             <el-table-column prop="path" label="路径" min-width="200" show-overflow-tooltip />
-            <el-table-column prop="name" label="名称" width="120" />
-            <el-table-column prop="module" label="模块" width="100" />
-            <el-table-column prop="status" label="状态" width="90">
+            <el-table-column prop="name" label="名称" min-width="110" show-overflow-tooltip />
+            <el-table-column prop="module" label="模块" min-width="90" />
+            <el-table-column prop="status" label="状态" min-width="90">
               <template #default="{ row }">
                 <el-tag type="success" size="small">{{ row.status }}</el-tag>
               </template>

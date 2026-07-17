@@ -27,6 +27,7 @@ const LOCAL_FALLBACK: DictMap = {
     QUALITY_REPORT: '品质报告',
   },
   carbon_source: { VEHICLE: '运输车辆', COLD_STORAGE: '冷库仓储', PACKAGE: '包装环节' },
+  loss_type: { TRANSPORT: '运输', STORAGE: '仓储', PACKAGE: '包装', RETAIL: '零售', SALE: '销售' },
   suggestion_priority: { HIGH: '高', MEDIUM: '中', LOW: '低' },
   suggestion_type: {
     TEMP_CONTROL: '温控调整',

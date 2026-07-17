@@ -19,14 +19,16 @@
       <el-col :xs="24" :md="14">
         <el-card shadow="never">
           <template #header><strong>损耗明细</strong></template>
-          <el-table :data="detail" v-loading="loading" stripe max-height="360">
-            <el-table-column prop="batchNo" label="批次号" width="130" />
+          <el-table :data="detail" v-loading="loading" stripe max-height="420" table-layout="auto">
+            <el-table-column prop="batchNo" label="批次号" min-width="140" show-overflow-tooltip />
             <el-table-column prop="productName" label="产品" min-width="120" show-overflow-tooltip />
-            <el-table-column prop="lossQuantity" label="损耗量" width="80" />
-            <el-table-column prop="lossRate" label="损耗率%" width="90" />
-            <el-table-column prop="lossType" label="类型" width="100" />
-            <el-table-column prop="cost" label="成本" width="80" />
-            <el-table-column prop="reportDate" label="日期" width="110" />
+            <el-table-column prop="lossQuantity" label="损耗量" min-width="90" />
+            <el-table-column prop="lossRate" label="损耗率%" min-width="100" />
+            <el-table-column prop="lossType" label="类型" min-width="100">
+              <template #default="{ row }">{{ dictLabel('loss_type', String(row.lossType)) }}</template>
+            </el-table-column>
+            <el-table-column prop="cost" label="成本(元)" min-width="100" />
+            <el-table-column prop="reportDate" label="日期" min-width="120" />
           </el-table>
         </el-card>
       </el-col>
@@ -38,6 +40,7 @@
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import * as echarts from 'echarts'
 import { fetchLossDetail, fetchLossOverview, fetchLossTrend } from '@/api/loss'
+import { dictLabel, ensureDicts } from '@/utils/dict'
 
 const loading = ref(false)
 const overview = ref<Record<string, unknown> | null>(null)
@@ -70,7 +73,10 @@ async function load() {
   }
 }
 
-onMounted(load)
+onMounted(async () => {
+  await ensureDicts()
+  await load()
+})
 onUnmounted(() => chart?.dispose())
 </script>
 
